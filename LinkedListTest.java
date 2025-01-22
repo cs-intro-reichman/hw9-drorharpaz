@@ -37,6 +37,8 @@ public class LinkedListTest {
 		// Frees some more memory and defrags (IGNORE THIS TESTING SECTION FOR NOW)
 		m.free(addresses[1]);
 		m.free(addresses[3]);
+		System.out.println(m);
+		System.out.println();
 		m.defrag();
 		System.out.println(m);
 		//// expected output:

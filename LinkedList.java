@@ -50,19 +50,21 @@ public class LinkedList {
 	 * @return the node at the given index
 	 */		
 	public Node getNode(int index) {
-		Node asskedNode = first;
-		if (index < 0 || index >= size) {
+		Node asskedNode = this.first;
+		if (size == 0) {
+			return null;
+		}else if (index < 0 || index >= size) {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
-		}
-		if (index == size -1) {
+		}else if (index == size -1) {
 			return this.last;
-		}
-		for (int i = 0; i < size; i ++){
-			if (i == index) {
-				return asskedNode;
+		}else {
+			for (int i = 0; i < size; i ++){
+				if (i == index) {
+					return asskedNode;
+				}
+				asskedNode = asskedNode.next;
 			}
-			asskedNode = asskedNode.next;
 		}
 		return null;
 	}
@@ -87,20 +89,24 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
-		if (index < 0 || index >= size) {
+		if (size == 0) {
+			this.first = new  Node(block);
+			this.last = first;
+		}else if (index < 0 || index > size) {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}else if (index == 0) {
-			Node temporeryNode = new Node(first.block);
 			this.first = new  Node(block);
-			this.first.next = temporeryNode;
-		}else if (index == size -1) {
+			this.first.next = getNode(1);
+		}else if (index == size) {
 			this.last.next = new Node(block);
 			this.last = this.last.next;
 		}else{
 			Node newNode = new Node(block);
-			getNode(index - 1).next = newNode;
-			newNode.next = getNode(index + 1);
+			Node beforNode = getNode(index -1);
+			Node afterNode = getNode(index +1);
+			beforNode.next = newNode;
+			newNode.next = afterNode;
 		}
 		size ++;
 	}
@@ -113,7 +119,11 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addLast(MemoryBlock block) {
-		add(size -1, block);
+		if (size == 0) {
+			add(size, block);
+		}else{
+			add(size, block);
+		}
 	}
 	
 	/**
@@ -137,7 +147,7 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-		return getNode(index).block;
+		return this.getNode(index).block;
 	}	
 
 	/**
@@ -211,10 +221,24 @@ public class LinkedList {
 	 * A textual representation of this list, for debugging.
 	 */
 	public String toString() {
-		String resulString = "";
-		for (int i = 0; i < size; i ++){
+		if (size == 0) {
+			return "";
+		}
+		String resulString = getNode(0).toString();
+		for (int i = 1; i < size; i ++){
 			resulString = resulString + getNode(i).toString();
 		}
 		return resulString;
+	}
+
+	/**
+	* @return the sum of the space in this list.
+	*/
+	public int sumSpace(){
+		int sum = 0;
+		for (int i = 0;i < size;i ++){
+			sum += getBlock(i).length;
+		}
+		return sum;
 	}
 }
