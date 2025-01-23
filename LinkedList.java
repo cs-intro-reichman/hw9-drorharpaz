@@ -59,12 +59,8 @@ public class LinkedList {
 		}else if (index == size -1) {
 			return this.last;
 		}else {
-			for (int i = 0; i < size; i ++){
-				if (i == index) {
-					return asskedNode;
-				}else{
-					asskedNode = asskedNode.next;
-				}
+			for (int i = 0; i < index; i ++){
+				asskedNode = asskedNode.next;
 			}
 		}
 		return asskedNode;
@@ -90,26 +86,27 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
-		if (size == 0) {
-			this.first = new  Node(block);
-			this.last = first;
-		}else if (index < 0 || index > size) {
-			throw new IllegalArgumentException(
-					"index must be between 0 and size");
-		}else if (index == 0) {
-			this.first = new  Node(block);
-			this.first.next = getNode(1);
-		}else if (index == size) {
-			this.last.next = new Node(block);
-			this.last = this.last.next;
-		}else{
-			Node newNode = new Node(block);
-			Node beforNode = getNode(index -1);
-			Node afterNode = getNode(index);
-			beforNode.next = newNode;
-			newNode.next = afterNode;
+		if (index < 0 || index > size) {
+			throw new IllegalArgumentException("index must be between 0 and size");
 		}
-		size ++;
+	
+		Node newNode = new Node(block);
+	
+		if (index == 0) { // הוספה בתחילת הרשימה
+			newNode.next = first;
+			first = newNode;
+			if (size == 0) { // אם הרשימה הייתה ריקה
+				last = newNode;
+			}
+		} else if (index == size) { // הוספה בסוף הרשימה
+			last.next = newNode;
+			last = newNode;
+		} else { // הוספה באמצע הרשימה
+			Node beforeNode = getNode(index - 1);
+			newNode.next = beforeNode.next;
+			beforeNode.next = newNode;
+		}
+		size++;
 	}
 
 	/**
@@ -178,8 +175,9 @@ public class LinkedList {
 	 */
 	public void remove(Node node) {
 		if (size == 0) {
+			throw new IllegalArgumentException("Cannot remove from an empty list");
 		}else if (indexOf(node.block) == 0) {
-			first = node.next; 
+			first = first.next; 
 		}else if (indexOf(node.block) == size -1) {
 			getNode(size -2).next = null;
 			last = getNode(size -2);
