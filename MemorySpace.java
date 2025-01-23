@@ -76,8 +76,10 @@ public class MemorySpace {
 
 	public int malloc(int length) {
 		if (length <= 0) {
-			return -1; // אי אפשר להקצות בלוק בגודל 0 או שלילי
+			return -1; // אי אפשר להקצות בלוק בגודל שלילי או אפס
 		}
+	
+		// חיפוש בלוק מתאים ברשימת הבלוקים הפנויים
 		for (int i = 0; i < freeList.getSize(); i++) {
 			MemoryBlock freeBlock = freeList.getBlock(i);
 			if (freeBlock.length >= length) {
@@ -88,33 +90,39 @@ public class MemorySpace {
 				freeBlock.baseAddress += length;
 				freeBlock.length -= length;
 	
-				// אם האורך של הבלוק הפנוי הוא 0, הסר אותו
+				// אם האורך של הבלוק הפנוי שווה ל-0, הסר אותו מהרשימה
 				if (freeBlock.length == 0) {
 					freeList.remove(i);
 				}
 	
-				// הוסף את הבלוק החדש לרשימת המוקצים
+				// הוסף את הבלוק החדש לרשימה המוקצה
 				allocatedList.addLast(allocatedBlock);
 				return allocatedBlock.baseAddress; // החזר את הכתובת
 			}
 		}
-
-    // נסה לבצע דפרגמנטציה וחפש שוב
-    defrag();
-    for (int i = 0; i < freeList.getSize(); i++) {
-        MemoryBlock freeBlock = freeList.getBlock(i);
-        if (freeBlock.length >= length) {
-            MemoryBlock allocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
-            freeBlock.baseAddress += length;
-            freeBlock.length -= length;
-            if (freeBlock.length == 0) {
-                freeList.remove(i);
-            }
-            allocatedList.addLast(allocatedBlock);
-            return allocatedBlock.baseAddress;
-        }
-    }
-		return -1; // לא נמצא מקום פנוי
+	
+		// אם לא נמצא מקום פנוי מתאים, בצע איחוד של בלוקים פנויים
+		defrag();
+	
+		// נסה שוב להקצות זיכרון לאחר האיחוד
+		for (int i = 0; i < freeList.getSize(); i++) {
+			MemoryBlock freeBlock = freeList.getBlock(i);
+			if (freeBlock.length >= length) {
+				MemoryBlock allocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
+	
+				freeBlock.baseAddress += length;
+				freeBlock.length -= length;
+	
+				if (freeBlock.length == 0) {
+					freeList.remove(i);
+				}
+	
+				allocatedList.addLast(allocatedBlock);
+				return allocatedBlock.baseAddress;
+			}
+		}
+	
+		return -1; // אם גם אחרי איחוד בלוקים אין מקום פנוי
 	}
 
 	/**
@@ -186,16 +194,19 @@ public class MemorySpace {
 			for (int j = i + 1; j < freeList.getSize(); j++) {
 				MemoryBlock other = freeList.getBlock(j);
 	
-				// איחוד אם הבלוקים ברצף
+				// בדוק אם current ו-other הם בלוקים חופפים ברצף
 				if (current.getEndAddress() == other.baseAddress) {
-					current.length += other.length; // איחוד
+					// איחוד בלוקים
+					current.length += other.length;
 					freeList.remove(j);
-					j--; // עדכון אינדקסים לאחר הסרה
+					j--; // עדכון האינדקס של j לאחר ההסרה
 				} else if (other.getEndAddress() == current.baseAddress) {
-					current.baseAddress = other.baseAddress;
-					current.length += other.length; // איחוד
-					freeList.remove(j);
-					j--;
+					// איחוד בלוקים בכיוון ההפוך
+					other.length += current.length;
+					other.baseAddress = current.baseAddress;
+					freeList.remove(i);
+					i--; // עדכון האינדקס של i לאחר ההסרה
+					break; // הפסק את הלולאה הפנימית כי current הוסר
 				}
 			}
 		}
