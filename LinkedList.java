@@ -51,14 +51,12 @@ public class LinkedList {
 	 */		
 	public Node getNode(int index) {
 		Node asskedNode = this.first;
-		if (size == 0) {
-			return asskedNode;
-		}else if (index < 0 || index >= size) {
+		if (size == 0 || index < 0 || index >= size) {
 			throw new IllegalArgumentException(
-					"index must be between 0 and size");
-		}else if (index == size -1) {
-			return this.last;
-		}else {
+				"index must be between 0 and size");
+			}else if (index == size -1) {
+				return this.last;
+			}else {
 			for (int i = 0; i < index; i ++){
 				asskedNode = asskedNode.next;
 			}
@@ -145,6 +143,9 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
+		if (index < 0 || index >= size) {
+			throw new IllegalArgumentException("index must be between 0 and size");
+		}
 		return this.getNode(index).block;
 	}	
 
@@ -174,17 +175,29 @@ public class LinkedList {
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
+		if (node == null) {
+			throw new NullPointerException("Cannot remove a null node");
+		}
 		if (size == 0) {
 			throw new IllegalArgumentException("Cannot remove from an empty list");
-		}else if (indexOf(node.block) == 0) {
-			first = first.next; 
-		}else if (indexOf(node.block) == size -1) {
-			getNode(size -2).next = null;
-			last = getNode(size -2);
-		}else {
-			int beforeIndex = indexOf(node.block) - 1;
-			int afterImdex = beforeIndex + 2;
-			getNode(beforeIndex).next = getNode(afterImdex);
+		}
+		if (node == first) { // הסרת הצומת הראשון
+			first = first.next;
+			if (size == 1) { // אם היה רק צומת אחד
+				last = null;
+			}
+		} else {
+			Node current = first;
+			while (current.next != null && current.next != node) {
+				current = current.next;
+			}
+			if (current.next == null) {
+				throw new IllegalArgumentException("Node not found in list");
+			}
+			current.next = node.next;
+			if (node == last) { // אם הסרנו את האחרון
+				last = current;
+			}
 		}
 		size --;
 	}
@@ -197,6 +210,9 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public void remove(int index) {
+		if (index < 0 || index >= size) {
+			throw new IllegalArgumentException("index must be between 0 and size");
+		}
 		remove(getNode(index));
 	}
 
