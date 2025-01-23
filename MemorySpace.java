@@ -82,6 +82,10 @@ public class MemorySpace {
 		// חיפוש בלוק מתאים ברשימת הבלוקים הפנויים
 		for (int i = 0; i < freeList.getSize(); i++) {
 			MemoryBlock freeBlock = freeList.getBlock(i);
+			if (freeBlock.length == length) {
+				allocatedList.addLast(freeBlock);
+				freeList.remove(freeBlock);
+			}
 			if (freeBlock.length >= length) {
 				// יצירת בלוק חדש להקצאה
 				MemoryBlock allocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
@@ -92,7 +96,7 @@ public class MemorySpace {
 	
 				// אם האורך של הבלוק הפנוי שווה ל-0, הסר אותו מהרשימה
 				if (freeBlock.length == 0) {
-					freeList.remove(i);
+					freeList.remove(freeBlock);
 				}
 	
 				// הוסף את הבלוק החדש לרשימה המוקצה
@@ -105,6 +109,10 @@ public class MemorySpace {
 		// נסה שוב להקצות זיכרון לאחר האיחוד
 		for (int i = 0; i < freeList.getSize(); i++) {
 			MemoryBlock freeBlock = freeList.getBlock(i);
+			if (freeBlock.length == length) {
+				allocatedList.addLast(freeBlock);
+				freeList.remove(freeBlock);
+			}
 			if (freeBlock.length >= length) {
 				MemoryBlock allocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
 				freeBlock.baseAddress += length;
@@ -143,10 +151,9 @@ public class MemorySpace {
 				// הוסף את הבלוק לרשימה הפנויה
 				freeList.addLast(allocatedBlock);
 				allocatedList.remove(i); // הסר את הבלוק מהרשימה המוקצה
-				return;
 			}
 		}
-		throw new IllegalArgumentException("Address not found in allocated list");
+		throw new IllegalArgumentException("index must be between 0 and size");
 	}
 	
 	/**
