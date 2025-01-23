@@ -83,7 +83,7 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		for (int i = 0; i < allocatedList.getSize() - 1;i ++){
+		for (int i = 0; i < allocatedList.getSize();i ++){
 			if (allocatedList.getBlock(i).baseAddress == address) {
 				freeList.addLast(allocatedList.getBlock(i));
 				allocatedList.remove(i);
@@ -96,7 +96,7 @@ public class MemorySpace {
 	 * for debugging purposes.
 	 */
 	public String toString() {
-		return freeList.toString() + "\n" + allocatedList.toString();		
+		return freeList.toString() + "\n" + allocatedList.toString() + "\n";		
 	}
 	
 	/**

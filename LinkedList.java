@@ -224,7 +224,7 @@ public class LinkedList {
 		if (size == 0) {
 			return "";
 		}
-		String resulString = getNode(0).toString();
+		String resulString = first.toString();
 		for (int i = 1; i < size; i ++){
 			resulString = resulString + getNode(i).toString();
 		}

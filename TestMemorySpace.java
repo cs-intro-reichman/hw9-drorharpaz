@@ -81,6 +81,7 @@ public class TestMemorySpace {
         memory.defrag();
 
         String afterDefrag = "(0 , 20) (40 , 60)\n(20 , 20)\n";
+        System.out.println(memory);
         assertString(afterDefrag, memory.toString(), "After defrag");
     }
 
