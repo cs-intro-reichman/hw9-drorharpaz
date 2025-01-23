@@ -98,6 +98,22 @@ public class MemorySpace {
 				return allocatedBlock.baseAddress; // החזר את הכתובת
 			}
 		}
+
+    // נסה לבצע דפרגמנטציה וחפש שוב
+    defrag();
+    for (int i = 0; i < freeList.getSize(); i++) {
+        MemoryBlock freeBlock = freeList.getBlock(i);
+        if (freeBlock.length >= length) {
+            MemoryBlock allocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
+            freeBlock.baseAddress += length;
+            freeBlock.length -= length;
+            if (freeBlock.length == 0) {
+                freeList.remove(i);
+            }
+            allocatedList.addLast(allocatedBlock);
+            return allocatedBlock.baseAddress;
+        }
+    }
 		return -1; // לא נמצא מקום פנוי
 	}
 
@@ -167,25 +183,19 @@ public class MemorySpace {
 		for (int i = 0; i < freeList.getSize(); i++) {
 			MemoryBlock current = freeList.getBlock(i);
 	
-			for (int j = 0; j < freeList.getSize(); j++) {
-				if (i == j) continue; // דלג על השוואה עצמית
-	
+			for (int j = i + 1; j < freeList.getSize(); j++) {
 				MemoryBlock other = freeList.getBlock(j);
 	
-				// בדוק אם הבלוקים ברצף
+				// איחוד אם הבלוקים ברצף
 				if (current.getEndAddress() == other.baseAddress) {
-					// איחוד current ו-other
-					current.length += other.length;
+					current.length += other.length; // איחוד
 					freeList.remove(j);
-					if (j < i) i--; // עדכון האינדקס אם בלוק קודם הוסר
-					j--; // המשך לבדוק בלוקים נוספים עם current
+					j--; // עדכון אינדקסים לאחר הסרה
 				} else if (other.getEndAddress() == current.baseAddress) {
-					// איחוד other ו-current
-					other.length += current.length;
-					other.baseAddress = current.baseAddress;
-					freeList.remove(i);
-					i--; // עדכון האינדקס לאחר הסרה
-					break; // הפסק את הלולאה הפנימית כי current הוסר
+					current.baseAddress = other.baseAddress;
+					current.length += other.length; // איחוד
+					freeList.remove(j);
+					j--;
 				}
 			}
 		}
