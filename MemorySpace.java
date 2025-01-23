@@ -57,21 +57,48 @@ public class MemorySpace {
 	 *        the length (in words) of the memory block that has to be allocated
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
-	public int malloc(int length) {		
+	// public int malloc(int length) {		
+	// 	if (length <= 0) {
+	// 		return -1;
+	// 	}
+	// 	for (int i = 0;i < freeList.getSize();i ++){
+	// 		if (freeList.getBlock(i).length >= length) {
+	// 			MemoryBlock newMemoryBlock = new MemoryBlock(freeList.getBlock(i).baseAddress, length);
+	// 			freeList.getBlock(i).baseAddress = newMemoryBlock.baseAddress + length;
+	// 			freeList.getBlock(i).length = freeList.getBlock(i).length - length;
+	// 			allocatedList.addLast(newMemoryBlock);
+	// 			if (freeList.getBlock(i).length == 0) 	{freeList.remove(i);}
+	// 			return newMemoryBlock.baseAddress;
+	// 		}
+	// 	}
+	// 	return -1;
+	// }
+
+	public int malloc(int length) {
 		if (length <= 0) {
-			return -1;
+			return -1; // אי אפשר להקצות בלוק בגודל 0 או שלילי
 		}
-		for (int i = 0;i < freeList.getSize();i ++){
-			if (freeList.getBlock(i).length >= length) {
-				MemoryBlock newMemoryBlock = new MemoryBlock(freeList.getBlock(i).baseAddress, length);
-				freeList.getBlock(i).baseAddress = newMemoryBlock.baseAddress + length;
-				freeList.getBlock(i).length = freeList.getBlock(i).length - length;
-				allocatedList.addLast(newMemoryBlock);
-				if (freeList.getBlock(i).length == 0) 	{freeList.remove(i);}
-				return newMemoryBlock.baseAddress;
+		for (int i = 0; i < freeList.getSize(); i++) {
+			MemoryBlock freeBlock = freeList.getBlock(i);
+			if (freeBlock.length >= length) {
+				// יצירת בלוק חדש להקצאה
+				MemoryBlock allocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
+	
+				// עדכון הבלוק הפנוי
+				freeBlock.baseAddress += length;
+				freeBlock.length -= length;
+	
+				// אם האורך של הבלוק הפנוי הוא 0, הסר אותו
+				if (freeBlock.length == 0) {
+					freeList.remove(i);
+				}
+	
+				// הוסף את הבלוק החדש לרשימת המוקצים
+				allocatedList.addLast(allocatedBlock);
+				return allocatedBlock.baseAddress; // החזר את הכתובת
 			}
 		}
-		return -1;
+		return -1; // לא נמצא מקום פנוי
 	}
 
 	/**
@@ -82,13 +109,26 @@ public class MemorySpace {
 	 * @param baseAddress
 	 *            the starting address of the block to freeList
 	 */
+	// public void free(int address) {
+	// 	for (int i = 0; i < allocatedList.getSize();i ++){
+	// 		if (allocatedList.getBlock(i).baseAddress == address) {
+	// 			freeList.addLast(allocatedList.getBlock(i));
+	// 			allocatedList.remove(i);
+	// 		}
+	// 	}
+	// }
+
 	public void free(int address) {
-		for (int i = 0; i < allocatedList.getSize();i ++){
-			if (allocatedList.getBlock(i).baseAddress == address) {
-				freeList.addLast(allocatedList.getBlock(i));
-				allocatedList.remove(i);
+		for (int i = 0; i < allocatedList.getSize(); i++) {
+			MemoryBlock allocatedBlock = allocatedList.getBlock(i);
+			if (allocatedBlock.baseAddress == address) {
+				// הוסף את הבלוק לרשימה הפנויה
+				freeList.addLast(allocatedBlock);
+				allocatedList.remove(i); // הסר את הבלוק מהרשימה המוקצה
+				return;
 			}
 		}
+		throw new IllegalArgumentException("Address not found in allocated list");
 	}
 	
 	/**
@@ -104,22 +144,51 @@ public class MemorySpace {
 	 * Normally, called by malloc, when it fails to find a memory block of the requested size.
 	 * In this implementation Malloc does not call defrag.
 	 */
-	public void defrag() {
-		for (int i = 0; i < this.freeList.getSize();i ++){
-			for (int j = 0;j < this.freeList.getSize(); j ++){
-				if ((freeList.getBlock(i).baseAddress + freeList.getBlock(i).length) == freeList.getBlock(j).baseAddress) {
-					freeList.getBlock(i).length = freeList.getBlock(i).length + freeList.getBlock(j).length;
-					freeList.remove(j);
-					i = 0;
-					j = 0;
-				}else if (freeList.getBlock(j).baseAddress + freeList.getBlock(j).length == freeList.getBlock(i).baseAddress) {
-					freeList.getBlock(j).length = freeList.getBlock(j).length + freeList.getBlock(i).length;
-					freeList.remove(i);
-					i = 0;
-					j = 0;
-				}
+	// public void defrag() {
+	// 	for (int i = 0; i < this.freeList.getSize();i ++){
+	// 		for (int j = 0;j < this.freeList.getSize(); j ++){
+	// 			if ((freeList.getBlock(i).baseAddress + freeList.getBlock(i).length) == freeList.getBlock(j).baseAddress) {
+	// 				freeList.getBlock(i).length = freeList.getBlock(i).length + freeList.getBlock(j).length;
+	// 				freeList.remove(j);
+	// 				i = 0;
+	// 				j = 0;
+	// 			}else if (freeList.getBlock(j).baseAddress + freeList.getBlock(j).length == freeList.getBlock(i).baseAddress) {
+	// 				freeList.getBlock(j).length = freeList.getBlock(j).length + freeList.getBlock(i).length;
+	// 				freeList.remove(i);
+	// 				i = 0;
+	// 				j = 0;
+	// 			}
 				
+	// 		}
+	// 	}
+	// }
+
+	public void defrag() {
+		for (int i = 0; i < freeList.getSize(); i++) {
+			MemoryBlock current = freeList.getBlock(i);
+	
+			for (int j = 0; j < freeList.getSize(); j++) {
+				if (i == j) continue; // דלג על השוואה עצמית
+	
+				MemoryBlock other = freeList.getBlock(j);
+	
+				// בדוק אם הבלוקים ברצף
+				if (current.getEndAddress() == other.baseAddress) {
+					// איחוד current ו-other
+					current.length += other.length;
+					freeList.remove(j);
+					if (j < i) i--; // עדכון האינדקס אם בלוק קודם הוסר
+					j--; // המשך לבדוק בלוקים נוספים עם current
+				} else if (other.getEndAddress() == current.baseAddress) {
+					// איחוד other ו-current
+					other.length += current.length;
+					other.baseAddress = current.baseAddress;
+					freeList.remove(i);
+					i--; // עדכון האינדקס לאחר הסרה
+					break; // הפסק את הלולאה הפנימית כי current הוסר
+				}
 			}
 		}
 	}
+
 }

@@ -39,4 +39,23 @@ public class MemoryBlock {
 	public String toString() {
 		return "(" + baseAddress + " , " + length +")";
 	}
+	/**
+ 	* Gets the ending address of this memory block.
+ 	* 
+ 	* @return The ending address of the block (baseAddress + length).
+	*/
+	public int getEndAddress() {
+		return baseAddress + length;
+	}
+	
+	/**
+	 * Checks if this block overlaps with the given block.
+	 * 
+	 * @param other
+	 *        the given block
+	 * @return true if the blocks overlap, false otherwise
+	 */
+	public boolean overlaps(MemoryBlock other) {
+		return !(this.getEndAddress() <= other.baseAddress || other.getEndAddress() <= this.baseAddress);
+	}
 }
