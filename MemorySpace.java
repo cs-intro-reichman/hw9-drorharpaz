@@ -100,28 +100,22 @@ public class MemorySpace {
 				return allocatedBlock.baseAddress; // החזר את הכתובת
 			}
 		}
-	
 		// אם לא נמצא מקום פנוי מתאים, בצע איחוד של בלוקים פנויים
 		defrag();
-	
 		// נסה שוב להקצות זיכרון לאחר האיחוד
 		for (int i = 0; i < freeList.getSize(); i++) {
 			MemoryBlock freeBlock = freeList.getBlock(i);
 			if (freeBlock.length >= length) {
 				MemoryBlock allocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
-	
 				freeBlock.baseAddress += length;
 				freeBlock.length -= length;
-	
 				if (freeBlock.length == 0) {
 					freeList.remove(i);
 				}
-	
 				allocatedList.addLast(allocatedBlock);
 				return allocatedBlock.baseAddress;
 			}
 		}
-	
 		return -1; // אם גם אחרי איחוד בלוקים אין מקום פנוי
 	}
 
@@ -203,7 +197,7 @@ public class MemorySpace {
 				} else if (other.getEndAddress() == current.baseAddress) {
 					// איחוד בלוקים בכיוון ההפוך
 					other.length += current.length;
-					other.baseAddress = current.baseAddress;
+					other.baseAddress = Math.min(current.baseAddress, other.baseAddress);
 					freeList.remove(i);
 					i--; // עדכון האינדקס של i לאחר ההסרה
 					break; // הפסק את הלולאה הפנימית כי current הוסר

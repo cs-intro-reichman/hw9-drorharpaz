@@ -77,9 +77,10 @@ public class TestMemorySpace {
 
         String beforeDefrag = "(0 , 20) (40 , 20) (60 , 40)\n(20 , 20)\n";
         assertString(beforeDefrag, memory.toString(), "Before defrag");
-
+        System.out.println(memory);
         memory.defrag();
-
+        System.out.println();
+        System.out.println(memory);
         String afterDefrag = "(0 , 20) (40 , 60)\n(20 , 20)\n";
         System.out.println(memory);
         assertString(afterDefrag, memory.toString(), "After defrag");
