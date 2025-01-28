@@ -238,15 +238,14 @@ public class LinkedList {
 	 * A textual representation of this list, for debugging.
 	 */
 	public String toString() {
-		if (size == 0) {
-			return "";
+		String s = "";
+		Node current = first;
+		while (current != null) {
+		s = s + current.block + " ";
+		current = current.next;
 		}
-		String resulString = first.toString();
-		for (int i = 1; i < size; i ++){
-			resulString = resulString + getNode(i).toString();
+		return s;
 		}
-		return resulString;
-	}
 
 	/**
 	* @return the sum of the space in this list.
